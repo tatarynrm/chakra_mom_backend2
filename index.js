@@ -51,7 +51,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(
   cors({
-    origin: ["https://carriers.ict.lviv.ua", "http://localhost:3000", "http://localhost:3001"],
+    origin: ["https://carriers.ict.lviv.ua", "http://localhost:3000", "http://localhost:3001","https://logistic-mira.space"],
     methods: ["POST", "GET"],
     credentials: true,
   })
@@ -63,6 +63,7 @@ app.use((req, res, next) => {
     "http://localhost:3000",
     "http://localhost:3001",
     "https://ictwork.site",
+    "https://logistic-mira.space"
   ];
 
   const origin = req.headers.origin;

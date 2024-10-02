@@ -11,7 +11,7 @@ module.exports = async function (req, res, next) {
     if (err) {
       return res.status(403).json({ message: 'Невірний токен' });
     }
-console.log('DECODED',decoded);
+
 
     req.user = decoded; // Зберігаємо інформацію про користувача у запиті
     next(); // Продовжуємо до наступного middleware або обробника маршруту

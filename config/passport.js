@@ -29,7 +29,7 @@ module.exports = function (passport) {
         return done(null, false, { message: 'Невірний пароль' });
       }
   
-      const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+      const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1d' });
   
       return done(null, { user, token });
     } catch (err) {
@@ -70,7 +70,7 @@ module.exports = function (passport) {
       }
 
       // Створюємо JWT токен
-      const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+      const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '10s' });
 
       console.log('user', user);
       

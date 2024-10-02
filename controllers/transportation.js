@@ -5,33 +5,51 @@ const createTransportation = async (req, res) => {
         cargo_date,
         cost,
         driver,
-        from,
+        location_from,
         price,
-        to,
+        location_to,
         transportation_comment,
         truck,
         truck_owner,
-        user_id
+        user_id,
+        status
     } = req.body;
 
-    const query = `
-        INSERT INTO transportation (
-            cargo_date, cost, driver, location_from, price, location_to, transportation_comment, truck, truck_owner, user_id
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-        RETURNING *;
-    `;
 
+    
+
+    // const query = `
+    //     INSERT INTO transportation (
+    //         cargo_date, cost, driver, location_from, price, location_to, transportation_comment, truck, truck_owner, user_id,status
+    //     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10,$11)
+    //     RETURNING *;
+    // `;
+    const query = `
+WITH inserted_transportation AS (
+    INSERT INTO transportation (
+        cargo_date, cost, driver, location_from, price, location_to, 
+        transportation_comment, truck, truck_owner, user_id, status
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+    RETURNING *
+)
+SELECT 
+    it.*, 
+    s.status AS transportation_status
+FROM inserted_transportation it
+LEFT JOIN transportation_status_list s ON it.status = s.id;
+    `;
     const values = [
         cargo_date,
         cost,
         driver,
-        from,
+        location_from,
         price,
-        to,
+        location_to,
         transportation_comment,
         truck,
         truck_owner,
-        user_id
+        user_id,
+        status
     ];
 
     try {
@@ -86,12 +104,15 @@ const createTransportationСomment = async (req, res) => {
 
 const getTransportationsList = async (req, res) => {
     const page = parseInt(req.query.page) || 1; // Номер сторінки
-    const limit = parseInt(req.query.limit) || 10; // Кількість записів на сторінку
+    const limit = parseInt(req.query.limit) || 7; // Кількість записів на сторінку
     const offset = (page - 1) * limit; // Зміщення
 
     try {
         const result = await pool.query(
-            `SELECT * FROM transportation ORDER BY cargo_date ASC LIMIT $1 OFFSET $2`,
+            `SELECT a.*,b.status as transportation_status
+             FROM transportation a
+             left join transportation_status_list b   on a.status = b.id
+             ORDER BY a.created_at DESC LIMIT $1 OFFSET $2`,
             [limit, offset]
         );
 
@@ -111,21 +132,94 @@ const getTransportationsList = async (req, res) => {
 };
 const searchTransportations = async (req, res) => {
     const query = req.query.query;
+
+
+    
     try {
-      const result = await pool.query(
-        `SELECT * FROM transportation 
-        WHERE location_from ILIKE $1 OR location_to ILIKE $1 OR price ILIKE $1 OR cost ILIKE $1 OR driver ILIKE $1 OR truck ILIKE $1 OR truck_owner ILIKE $1  OR transportation_comment ILIKE $1`,
-        [`%${query}%`]
-      );
-      res.json(result.rows);
+        const result = await pool.query(
+            `SELECT * FROM transportation 
+            WHERE location_from ILIKE $1 
+               OR location_to ILIKE $1  
+               OR cost::text ILIKE $1 
+               OR price::text ILIKE $1 
+               OR driver ILIKE $1 
+               OR truck ILIKE $1 
+               OR truck_owner ILIKE $1  
+               OR transportation_comment ILIKE $1`,
+            [`%${query}%`]
+        );
+        res.json(result.rows);
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: err.message });
+        console.error(err);
+        res.status(500).json({ message: err.message });
     }
 };
 
 
 
+const updateTransportation = async (req, res) => {
+    const { id } = req.params; // Get the id from req.params
+    const {
+        cargo_date,
+        cost,
+        driver,
+        location_from,
+        price,
+        location_to,
+        transportation_comment,
+        truck,
+        truck_owner,
+        user_id,
+        status
+    } = req.body;
+
+    console.log(status);
+
+    const query = `
+        UPDATE transportation
+        SET
+            cargo_date = $1,
+            cost = $2,
+            driver = $3,
+            location_from = $4,
+            price = $5,
+            location_to = $6,
+            transportation_comment = $7,
+            truck = $8,
+            truck_owner = $9,
+            user_id = $10,
+            status = $11
+        WHERE id = $12
+        RETURNING *;
+    `;
+    const values = [
+        cargo_date,
+        cost,
+        driver,
+        location_from,
+        price,
+        location_to,
+        transportation_comment,
+        truck,
+        truck_owner,
+        user_id,
+        status,
+        id // Include the id in the values array
+    ];
+
+    try {
+        const result = await pool.query(query, values);
+        
+        if (result.rows.length === 1) {
+            return res.status(201).json(result.rows[0]); // Return updated record with HTTP status 200
+        }
+
+        return res.status(404).json({ error: 'Transportation record not found' }); // Handle record not found
+    } catch (err) {
+        console.error('Error updating data:', err);
+        return res.status(500).json({ error: 'Error updating data' }); // Handle errors
+    }
+};
 
 
 
@@ -139,13 +233,27 @@ const getDayAndMonthSum = async (req,res)=>{
               SUM(CASE WHEN created_at::date >= DATE_TRUNC('month', CURRENT_DATE) THEN cost ELSE 0 END) AS total_cost_this_month
           FROM transportation
         `);
-    console.log(result.rows);
     
         res.json(result.rows[0]);
       } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message });
       }
+}
+
+
+
+
+const getTransportationStatus = async (req,res) =>{
+    try {
+        const result = await pool.query(`select * from transportation_status_list`);
+
+
+        res.json(result.rows)
+    } catch (error) {
+        console.log(err);
+        
+    }
 }
 
 module.exports = {
@@ -155,8 +263,13 @@ module.exports = {
     searchTransportations,
 
 
+    updateTransportation,
 
 
-    getDayAndMonthSum
+    getDayAndMonthSum,
+
+
+
+    getTransportationStatus
 
 };

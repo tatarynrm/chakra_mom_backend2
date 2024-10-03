@@ -12,7 +12,8 @@ const createTransportation = async (req, res) => {
         truck,
         truck_owner,
         user_id,
-        status
+        status,
+        cargo_owner
     } = req.body;
 
 
@@ -28,8 +29,8 @@ const createTransportation = async (req, res) => {
 WITH inserted_transportation AS (
     INSERT INTO transportation (
         cargo_date, cost, driver, location_from, price, location_to, 
-        transportation_comment, truck, truck_owner, user_id, status
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        transportation_comment, truck, truck_owner, user_id, status,cargo_owner
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11,$12)
     RETURNING *
 )
 SELECT 
@@ -49,7 +50,8 @@ LEFT JOIN transportation_status_list s ON it.status = s.id;
         truck,
         truck_owner,
         user_id,
-        status
+        status,
+        cargo_owner
     ];
 
     try {
@@ -170,7 +172,8 @@ const updateTransportation = async (req, res) => {
         truck,
         truck_owner,
         user_id,
-        status
+        status,
+        cargo_owner
     } = req.body;
 
     console.log(status);
@@ -188,8 +191,9 @@ const updateTransportation = async (req, res) => {
             truck = $8,
             truck_owner = $9,
             user_id = $10,
-            status = $11
-        WHERE id = $12
+            status = $11,
+            cargo_owner = $12
+        WHERE id = $13
         RETURNING *;
     `;
     const values = [
@@ -204,6 +208,8 @@ const updateTransportation = async (req, res) => {
         truck_owner,
         user_id,
         status,
+        cargo_owner,
+
         id // Include the id in the values array
     ];
 

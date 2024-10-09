@@ -22,7 +22,8 @@ const SECRET_KEY = crypto.createHash('sha256').update(BOT_TOKEN).digest();
 require('./config/passport')(passport);
 
 const authRouter = require('./routes/auth')
-const transportationRouter = require('./routes/transportation')
+const transportationRouter = require('./routes/transportation');
+const { default: axios } = require("axios");
 
 // Встановлюємо порт для сервера (за замовчуванням 3000)
 const corsConfig = {

@@ -102,20 +102,20 @@ app.use("/transportation", transportationRouter);
 // Route to start the authorization process
 app.get('/auth/instagram', (req, res) => {
   const clientId = process.env.INSTAGRAM_CLIENT_ID || '1753417965193100';
-  const redirectUri = process.env.INSTAGRAM_REDIRECT_URI || 'https://www.api.logistic-mira.space/auth/instagram/callback';
+  const redirectUri = process.env.INSTAGRAM_REDIRECT_URI || 'https://www.logistic-mira.space/instagram'; // Переконайтеся, що це правильний URL
   const scope = 'instagram_business_basic,instagram_business_manage_messages,instagram_business_manage_comments,instagram_business_content_publish';
 
-  // Forming URL for authorization
+  // Формування URL для авторизації
   const authUrl = `https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}`;
 
-  console.log(authUrl); // Log the auth URL for debugging
-  res.redirect(authUrl); // Redirect to authorization URL
+  console.log(authUrl); // Додайте це для перевірки
+  res.redirect(authUrl); // Перенаправлення на URL авторизації
 });
 
 // Callback route to handle the redirect from Instagram
 app.get('/auth/instagram/callback', async (req, res) => {
   const { code } = req.query;
-  console.log('CODE INST CALLBACK', code);
+console.log('CODE INST CALLBACK',code);
 
   if (!code) {
       return res.status(400).send('Authorization code not found');
@@ -132,19 +132,22 @@ app.get('/auth/instagram/callback', async (req, res) => {
           },
       });
 
-      console.log('TOKEN RESPONSE INSTAGRAM', tokenResponse.data);
 
+  console.log('TOKEN RESPONSE INSTAGRAM',tokenResponse);
+  
+      
       const accessToken = tokenResponse.data.access_token;
       const userId = tokenResponse.data.user_id;
 
-      console.log('ACCESS TOKEN CALLBACK', accessToken);
-      console.log('ACCESS TOKEN userId', userId);
 
-      // Store token in session or database
+      console.log('ACCESS TOKEN CALBACK',accessToken);
+      console.log('ACCESS TOKEN userId',userId);
+      
+      // Зберегти токен в сесії або в базі даних
       req.session.accessToken = accessToken;
       req.session.userId = userId;
 
-      // Redirect to frontend
+      // Перенаправлення на фронтенд
       res.redirect('https://logistic-mira.space/instagram');
   } catch (error) {
       console.error('Error getting access token:', error.response?.data || error.message);
@@ -154,8 +157,9 @@ app.get('/auth/instagram/callback', async (req, res) => {
 
 // Route to manage Instagram pages
 app.get('/manage', async (req, res) => {
-  console.log('REQ SESSION USER ID', req.session.userId);
 
+  console.log('REQ SESSION USER ID',req.session.userId);
+  
   if (!req.session.accessToken) {
       return res.status(401).send('Unauthorized');
   }
@@ -173,6 +177,7 @@ app.get('/manage', async (req, res) => {
       res.status(500).send('Error fetching user media');
   }
 });
+
 // Запускаємо сервер на зазначеному порту
 app.listen(PORT, () => {
   console.log(`Сервер працює на порту ${PORT}`);

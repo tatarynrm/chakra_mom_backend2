@@ -43,7 +43,7 @@ router.post('/login', (req, res, next) => {
 
   
   passport.authenticate('local', { session: false }, (err, userInfo, info) => {
-    console.log('DSADSASDDSADSDASDSA INFO',info);
+  
     
     if (err || !userInfo) {
       return res.status(400).json({ msg: info?.message });

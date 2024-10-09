@@ -80,35 +80,88 @@ app.use((req, res, next) => {
 app.use("/auth", authRouter);
 app.use("/transportation", transportationRouter);
 
-// Роут для авторизації
-app.get('/auth/facebook', passport.authenticate('facebook', {
-  scope: ['instagram_basic', 'instagram_manage_insights']
-}));
 
-// Callback роут
-app.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/' }), (req, res) => {
-  res.redirect('/'); // З Redirect до головної сторінки
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Route to start the authorization process
+app.get('/auth/instagram', (req, res) => {
+  const clientId = process.env.INSTAGRAM_CLIENT_ID || '1753417965193100';
+  const redirectUri = process.env.INSTAGRAM_REDIRECT_URI || 'http://localhost:3000';
+  const scope = 'instagram_business_basic,instagram_business_manage_messages,instagram_business_manage_comments,instagram_business_content_publish';
+
+  const authUrl = `https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}`;
+
+  console.log(authUrl); // Додайте це для перевірки
+  res.redirect(authUrl);
 });
-// Отримання токена доступу та даних Instagram
-app.get('/api/instagram', async (req, res) => {
-  const { accessToken } = req.user;
-console.log('ACCESSS TOKEN FACEBOOK',accessToken);
+
+// Callback route to handle the redirect from Instagram
+app.get('/auth/instagram/callback', async (req, res) => {
+  const { code } = req.query;
+console.log('CODE INST CALLBACK',code);
+
+  if (!code) {
+      return res.status(400).send('Authorization code not found');
+  }
 
   try {
-      const response = await axios.get(`https://graph.facebook.com/v12.0/me/accounts?access_token=${accessToken}`);
-      const instagramAccount = response.data.data.find(account => account.instagram_business_account);
-      console.log('instagramAccount',accessToken);
-      // Отримай інформацію про Instagram акаунт
-      if (instagramAccount) {
-          const instagramId = instagramAccount.instagram_business_account.id;
-          const instagramResponse = await axios.get(`https://graph.instagram.com/${instagramId}?fields=id,username&access_token=${accessToken}`);
-          res.json(instagramResponse.data);
-      } else {
-          res.status(404).json({ message: 'Instagram account not found.' });
-      }
+      const tokenResponse = await axios.post('https://api.instagram.com/oauth/access_token', null, {
+          params: {
+              client_id: process.env.INSTAGRAM_CLIENT_ID,
+              client_secret: process.env.INSTAGRAM_CLIENT_SECRET,
+              grant_type: 'authorization_code',
+              redirect_uri: process.env.INSTAGRAM_REDIRECT_URI,
+              code,
+          },
+      });
+
+      const accessToken = tokenResponse.data.access_token;
+      const userId = tokenResponse.data.user_id;
+
+      // Зберегти токен в сесії або в базі даних
+      req.session.accessToken = accessToken;
+      req.session.userId = userId;
+
+      // Перенаправлення на фронтенд
+      res.redirect('https://logistic-mira.space');
   } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Failed to fetch Instagram data.' });
+      console.error('Error getting access token:', error.response?.data || error.message);
+      res.status(500).send('Error getting access token');
+  }
+});
+
+// Route to manage Instagram pages
+app.get('/manage', async (req, res) => {
+  if (!req.session.accessToken) {
+      return res.status(401).send('Unauthorized');
+  }
+
+  try {
+      const userMediaResponse = await axios.get(`https://graph.instagram.com/${req.session.userId}/media`, {
+          params: {
+              access_token: req.session.accessToken,
+          },
+      });
+
+      res.json(userMediaResponse.data);
+  } catch (error) {
+      console.error('Error fetching user media:', error.response?.data || error.message);
+      res.status(500).send('Error fetching user media');
   }
 });
 

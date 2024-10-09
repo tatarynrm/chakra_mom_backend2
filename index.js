@@ -136,13 +136,13 @@ app.get('/auth/instagram/callback', async (req, res) => {
 
   try {
       const tokenResponse = await axios.post('https://api.instagram.com/oauth/access_token', null, {
-          params: {
+       
               client_id: clientId,
               client_secret: clientSecret,
               grant_type: 'authorization_code',
               redirect_uri: redirectUri,
               code,
-          },
+     
       });
 
       console.log('TOKEN RESPONSE INSTAGRAM', tokenResponse.data);

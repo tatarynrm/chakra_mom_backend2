@@ -125,11 +125,14 @@ app.get('/auth/instagram/callback', async (req, res) => {
   const clientSecret = process.env.INSTAGRAM_CLIENT_SECRET?.trim();
   const redirectUri = process.env.INSTAGRAM_REDIRECT_URI?.trim();
 
-  console.log('------------------------');
-  console.log('CLIENT ID:', clientId);  
-  console.log('CLIENT SECRET:', clientSecret); 
-  console.log('REDIRECT URI:', redirectUri); 
-  console.log('------------------------');
+  console.log('Запит на отримання токена з параметрами:');
+  console.log({
+      client_id: clientId,
+      client_secret: clientSecret,
+      grant_type: 'authorization_code',
+      redirect_uri: redirectUri,
+      code,
+  });
 
   try {
       const tokenResponse = await axios.post('https://api.instagram.com/oauth/access_token', null, {

@@ -46,7 +46,7 @@ app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  // cookie:{secure:false}
+  cookie:{secure:true}
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -149,6 +149,9 @@ console.log('CODE INST CALLBACK',code);
 
 // Route to manage Instagram pages
 app.get('/manage', async (req, res) => {
+
+  console.log('REQ SESSION USER ID',req.session.userId);
+  
   if (!req.session.accessToken) {
       return res.status(401).send('Unauthorized');
   }

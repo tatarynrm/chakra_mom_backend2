@@ -125,11 +125,12 @@ app.get('/auth/instagram/callback', async (req, res) => {
   const clientId = process.env.INSTAGRAM_CLIENT_ID;
   const clientSecret = process.env.INSTAGRAM_CLIENT_SECRET;
   const redirectUri = process.env.INSTAGRAM_REDIRECT_URI;
+console.log('------------------------');
 
   console.log('CLIENT ID:', clientId);  // Log client_id
   console.log('CLIENT SECRET:', clientSecret); // Log client_secret
   console.log('REDIRECT URI:', redirectUri); // Log redirect_uri
-
+  console.log('------------------------');
   if (!clientId || !clientSecret || !redirectUri) {
       return res.status(500).send('Missing required environment variables');
   }

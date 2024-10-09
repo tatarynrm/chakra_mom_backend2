@@ -103,7 +103,7 @@ app.use("/transportation", transportationRouter);
 // Route to start the authorization process
 app.get('/auth/instagram', (req, res) => {
   const clientId = process.env.INSTAGRAM_CLIENT_ID;
-  const redirectUri = process.env.INSTAGRAM_REDIRECT_URI || 'https://api.logistic-mira.space/auth/instagram/callback'; // Переконайтеся, що це правильний URL
+  const redirectUri = process.env.INSTAGRAM_REDIRECT_URI || 'https://api.logistic-mira.space/auth/instagram/callback';
   const scope = 'instagram_business_basic,instagram_business_manage_messages,instagram_business_manage_comments,instagram_business_content_publish';
 
   // Формування URL для авторизації
@@ -144,12 +144,13 @@ app.get('/auth/instagram/callback', async (req, res) => {
 
       console.log('TOKEN RESPONSE INSTAGRAM', tokenResponse.data);
       // Обробіть відповідь токена...
+      // Наприклад, зберігайте access_token в базі даних
+      res.json(tokenResponse.data); // Відправте дані токена у відповідь
   } catch (error) {
       console.error('Error getting access token:', error.response?.data || error.message);
       res.status(500).send('Error getting access token');
   }
 });
-
 // Route to manage Instagram pages
 app.get('/manage', async (req, res) => {
 

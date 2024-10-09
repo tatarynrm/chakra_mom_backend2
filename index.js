@@ -131,9 +131,9 @@ console.log('------------------------');
   console.log('CLIENT SECRET:', clientSecret); // Log client_secret
   console.log('REDIRECT URI:', redirectUri); // Log redirect_uri
   console.log('------------------------');
-  if (!clientId || !clientSecret || !redirectUri) {
-      return res.status(500).send('Missing required environment variables');
-  }
+  // if (!clientId || !clientSecret || !redirectUri) {
+  //     return res.status(500).send('Missing required environment variables');
+  // }
 
   try {
       const tokenResponse = await axios.post('https://api.instagram.com/oauth/access_token', null, {

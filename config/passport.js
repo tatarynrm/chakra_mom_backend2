@@ -1,5 +1,6 @@
 const LocalStrategy = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const FacebookStrategy = require('passport-facebook').Strategy;
 const bcrypt = require('bcryptjs');
 const pool = require('../db/db');
 const jwt = require('jsonwebtoken');
@@ -10,7 +11,7 @@ module.exports = function (passport) {
       // Пошук користувача по email
       const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
       const user = result.rows[0];
-  console.log(user);
+
   
       if (!user) {
         return done(null, false, { message: 'Користувача не знайдено' });
@@ -81,6 +82,15 @@ module.exports = function (passport) {
     }
   }));
 
+  passport.use(new FacebookStrategy({
+    clientID: process.env.FACEBOOK_APP_ID,
+    clientSecret: process.env.FACEBOOK_APP_SECRET,
+    callbackURL: '/auth/facebook/callback',
+    profileFields: ['id', 'displayName', 'photos', 'email'],
+}, async (accessToken, refreshToken, profile, done) => {
+    // Зберігай або отримуй дані користувача
+    done(null, { profile, accessToken });
+}));
 
   
 

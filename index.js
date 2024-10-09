@@ -80,8 +80,37 @@ app.use((req, res, next) => {
 app.use("/auth", authRouter);
 app.use("/transportation", transportationRouter);
 
+// Роут для авторизації
+app.get('/auth/facebook', passport.authenticate('facebook', {
+  scope: ['instagram_basic', 'instagram_manage_insights']
+}));
 
+// Callback роут
+app.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/' }), (req, res) => {
+  res.redirect('/'); // З Redirect до головної сторінки
+});
+// Отримання токена доступу та даних Instagram
+app.get('/api/instagram', async (req, res) => {
+  const { accessToken } = req.user;
+console.log('ACCESSS TOKEN FACEBOOK',accessToken);
 
+  try {
+      const response = await axios.get(`https://graph.facebook.com/v12.0/me/accounts?access_token=${accessToken}`);
+      const instagramAccount = response.data.data.find(account => account.instagram_business_account);
+      console.log('instagramAccount',accessToken);
+      // Отримай інформацію про Instagram акаунт
+      if (instagramAccount) {
+          const instagramId = instagramAccount.instagram_business_account.id;
+          const instagramResponse = await axios.get(`https://graph.instagram.com/${instagramId}?fields=id,username&access_token=${accessToken}`);
+          res.json(instagramResponse.data);
+      } else {
+          res.status(404).json({ message: 'Instagram account not found.' });
+      }
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Failed to fetch Instagram data.' });
+  }
+});
 
 // Запускаємо сервер на зазначеному порту
 app.listen(PORT, () => {

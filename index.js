@@ -101,7 +101,7 @@ app.use("/transportation", transportationRouter);
 // Route to start the authorization process
 app.get('/auth/instagram', (req, res) => {
   const clientId = process.env.INSTAGRAM_CLIENT_ID || '1753417965193100';
-  const redirectUri = process.env.INSTAGRAM_REDIRECT_URI || 'http://localhost:3000';
+  const redirectUri = process.env.INSTAGRAM_REDIRECT_URI || 'https://www.logistic-mira.space';
   const scope = 'instagram_business_basic,instagram_business_manage_messages,instagram_business_manage_comments,instagram_business_content_publish';
 
   const authUrl = `https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}`;

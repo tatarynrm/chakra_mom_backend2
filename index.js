@@ -1,5 +1,5 @@
-
-const PORT = process.env.PORT || 8800;
+require('dotenv').config();
+const PORT = process.env.PORT || 50000;
 const moment = require("moment");
 const pool = require('./db/db')
 require("moment/locale/uk");
@@ -12,7 +12,7 @@ const bodyParser = require("body-parser");
 const helmet = require("helmet");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-require('dotenv').config();
+
 const passport = require('passport');
 const crypto = require('crypto');
 const server = require("http").createServer(app);

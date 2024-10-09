@@ -102,7 +102,7 @@ app.use("/transportation", transportationRouter);
 // Route to start the authorization process
 app.get('/auth/instagram', (req, res) => {
   const clientId = process.env.INSTAGRAM_CLIENT_ID || '1753417965193100';
-  const redirectUri = process.env.INSTAGRAM_REDIRECT_URI || 'https://www.api.logistic-mira.space/auth/instagram/callback'; // Переконайтеся, що це правильний URL
+  const redirectUri = process.env.INSTAGRAM_REDIRECT_URI || 'https://api.logistic-mira.space/auth/instagram/callback'; // Переконайтеся, що це правильний URL
   const scope = 'instagram_business_basic,instagram_business_manage_messages,instagram_business_manage_comments,instagram_business_content_publish';
 
   // Формування URL для авторизації

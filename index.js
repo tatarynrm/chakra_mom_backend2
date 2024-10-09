@@ -1,4 +1,4 @@
-require("dotenv").config();
+
 const PORT = process.env.PORT || 8800;
 const moment = require("moment");
 const pool = require('./db/db')
@@ -12,7 +12,7 @@ const bodyParser = require("body-parser");
 const helmet = require("helmet");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-
+require('dotenv').config();
 const passport = require('passport');
 const crypto = require('crypto');
 const server = require("http").createServer(app);
@@ -102,7 +102,7 @@ app.use("/transportation", transportationRouter);
 
 // Route to start the authorization process
 app.get('/auth/instagram', (req, res) => {
-  const clientId = process.env.INSTAGRAM_CLIENT_ID || '1753417965193100';
+  const clientId = process.env.INSTAGRAM_CLIENT_ID;
   const redirectUri = process.env.INSTAGRAM_REDIRECT_URI || 'https://api.logistic-mira.space/auth/instagram/callback'; // Переконайтеся, що це правильний URL
   const scope = 'instagram_business_basic,instagram_business_manage_messages,instagram_business_manage_comments,instagram_business_content_publish';
 
@@ -113,7 +113,6 @@ app.get('/auth/instagram', (req, res) => {
   res.redirect(authUrl); // Перенаправлення на URL авторизації
 });
 
-// Callback route to handle the redirect from Instagram
 app.get('/auth/instagram/callback', async (req, res) => {
   const { code } = req.query;
   console.log('CODE INST CALLBACK', code);
@@ -122,18 +121,15 @@ app.get('/auth/instagram/callback', async (req, res) => {
       return res.status(400).send('Authorization code not found');
   }
 
-  const clientId = process.env.INSTAGRAM_CLIENT_ID;
-  const clientSecret = process.env.INSTAGRAM_CLIENT_SECRET;
-  const redirectUri = process.env.INSTAGRAM_REDIRECT_URI;
-console.log('------------------------');
+  const clientId = process.env.INSTAGRAM_CLIENT_ID?.trim();
+  const clientSecret = process.env.INSTAGRAM_CLIENT_SECRET?.trim();
+  const redirectUri = process.env.INSTAGRAM_REDIRECT_URI?.trim();
 
-  console.log('CLIENT ID:', clientId);  // Log client_id
-  console.log('CLIENT SECRET:', clientSecret); // Log client_secret
-  console.log('REDIRECT URI:', redirectUri); // Log redirect_uri
   console.log('------------------------');
-  // if (!clientId || !clientSecret || !redirectUri) {
-  //     return res.status(500).send('Missing required environment variables');
-  // }
+  console.log('CLIENT ID:', clientId);  
+  console.log('CLIENT SECRET:', clientSecret); 
+  console.log('REDIRECT URI:', redirectUri); 
+  console.log('------------------------');
 
   try {
       const tokenResponse = await axios.post('https://api.instagram.com/oauth/access_token', null, {
@@ -147,8 +143,7 @@ console.log('------------------------');
       });
 
       console.log('TOKEN RESPONSE INSTAGRAM', tokenResponse.data);
-
-      // Handle token response...
+      // Обробіть відповідь токена...
   } catch (error) {
       console.error('Error getting access token:', error.response?.data || error.message);
       res.status(500).send('Error getting access token');

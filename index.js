@@ -116,40 +116,38 @@ app.get('/auth/instagram', (req, res) => {
 // Callback route to handle the redirect from Instagram
 app.get('/auth/instagram/callback', async (req, res) => {
   const { code } = req.query;
-console.log('CODE INST CALLBACK',code);
+  console.log('CODE INST CALLBACK', code);
 
   if (!code) {
       return res.status(400).send('Authorization code not found');
   }
 
+  const clientId = process.env.INSTAGRAM_CLIENT_ID;
+  const clientSecret = process.env.INSTAGRAM_CLIENT_SECRET;
+  const redirectUri = process.env.INSTAGRAM_REDIRECT_URI;
+
+  console.log('CLIENT ID:', clientId);  // Log client_id
+  console.log('CLIENT SECRET:', clientSecret); // Log client_secret
+  console.log('REDIRECT URI:', redirectUri); // Log redirect_uri
+
+  if (!clientId || !clientSecret || !redirectUri) {
+      return res.status(500).send('Missing required environment variables');
+  }
+
   try {
       const tokenResponse = await axios.post('https://api.instagram.com/oauth/access_token', null, {
           params: {
-              client_id: process.env.INSTAGRAM_CLIENT_ID,
-              client_secret: process.env.INSTAGRAM_CLIENT_SECRET,
+              client_id: clientId,
+              client_secret: clientSecret,
               grant_type: 'authorization_code',
-              redirect_uri: process.env.INSTAGRAM_REDIRECT_URI,
+              redirect_uri: redirectUri,
               code,
           },
       });
 
+      console.log('TOKEN RESPONSE INSTAGRAM', tokenResponse.data);
 
-  console.log('TOKEN RESPONSE INSTAGRAM',tokenResponse);
-  
-      
-      const accessToken = tokenResponse.data.access_token;
-      const userId = tokenResponse.data.user_id;
-
-
-      console.log('ACCESS TOKEN CALBACK',accessToken);
-      console.log('ACCESS TOKEN userId',userId);
-      
-      // Зберегти токен в сесії або в базі даних
-      req.session.accessToken = accessToken;
-      req.session.userId = userId;
-
-      // Перенаправлення на фронтенд
-      res.redirect('https://logistic-mira.space/instagram');
+      // Handle token response...
   } catch (error) {
       console.error('Error getting access token:', error.response?.data || error.message);
       res.status(500).send('Error getting access token');

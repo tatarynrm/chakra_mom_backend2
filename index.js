@@ -132,15 +132,23 @@ console.log('CODE INST CALLBACK',code);
           },
       });
 
+
+  console.log('TOKEN RESPONSE INSTAGRAM',tokenResponse);
+  
+      
       const accessToken = tokenResponse.data.access_token;
       const userId = tokenResponse.data.user_id;
 
+
+      console.log('ACCESS TOKEN CALBACK',accessToken);
+      console.log('ACCESS TOKEN userId',userId);
+      
       // Зберегти токен в сесії або в базі даних
       req.session.accessToken = accessToken;
       req.session.userId = userId;
 
       // Перенаправлення на фронтенд
-      res.redirect('https://logistic-mira.space');
+      res.redirect('https://logistic-mira.space/instagram');
   } catch (error) {
       console.error('Error getting access token:', error.response?.data || error.message);
       res.status(500).send('Error getting access token');

@@ -156,17 +156,22 @@ app.get("/auth/instagram/callback", async (req, res) => {
 
 
       console.log('ACCESTOKENFORINSTAGRAM', accessToken);
-
+setTimeout(()=>{
+if (accessToken) {
+  console.log('WAIT FOR ACCESS TOKEN',accessToken);
+  
       // Підписка на вебхук
       const subscriptionResponse = await axios.post(`https://graph.facebook.com/v21.0/${clientId}/subscriptions`, {
-          object: 'instagram',
-          fields: 'comments,messages',
-          callback_url: 'https://api.logistic-mira.space/instagram/webhook',
-          verify_token: process.env.INSTAGRAM_VERIFY_TOKEN,
-          access_token: accessToken.trim()
-      });
+        object: 'instagram',
+        fields: 'comments,messages',
+        callback_url: 'https://api.logistic-mira.space/instagram/webhook',
+        verify_token: process.env.INSTAGRAM_VERIFY_TOKEN,
+        access_token: accessToken.trim()
+    });
 
-      console.log('Підписка успішна:', subscriptionResponse.data);
+    console.log('Підписка успішна:', subscriptionResponse.data);
+}
+},3000)
       res.json(tokenResponse.data); // Відправте дані токена у відповідь
   } catch (error) {
     console.error(

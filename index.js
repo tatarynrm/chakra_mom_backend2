@@ -224,6 +224,10 @@ app.get("/instagram/webhook", async (req, res) => {
  console.log('Запит підтвердження:', req.query);
 
   if (mode && token === VERIFY_TOKEN) {
+    console.log('MODE',mode);
+    console.log('VERIFY_TOKEN',VERIFY_TOKEN);
+    console.log('token',token);
+    
     res.status(200).send(challenge);
   } else {
     res.sendStatus(403);

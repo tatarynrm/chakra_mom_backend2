@@ -153,6 +153,7 @@ app.get("/auth/instagram/callback", async (req, res) => {
       },
     });
 
+console.log('userInfoResponse--------------',userInfoResponse);
 
 
     if (accessToken) {

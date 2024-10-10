@@ -153,14 +153,12 @@ app.get("/auth/instagram/callback", async (req, res) => {
               access_token: accessToken,
           },
       });
-console.log('userInfoResponse',userInfoResponse);
-
-
-
+// console.log('userInfoResponse',userInfoResponse);
 console.log('ACCESTOKENFORINSTAGRAM',accessToken);
+console.log('process.env.VERIFY_TOKEN',process.env.VERIFY_TOKEN);
 
   
-      axios.post(`https://graph.facebook.com/v20.0/${clientId}/subscriptions`, 
+      axios.post(`https://graph.facebook.com/v21.0/${clientId}/subscriptions`, 
         {
           object: 'instagram',
           fields: 'comments,messages',

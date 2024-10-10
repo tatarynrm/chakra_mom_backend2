@@ -167,7 +167,7 @@ app.get("/auth/instagram/callback", async (req, res) => {
   };
 
 
-      const response = await axios.post(`https://graph.facebook.com/v21.0/${user_id}/subscriptions`, subscriptionParams);
+      const response = await axios.post(`https://graph.facebook.com/v21.0/${process.env.INSTAGRAM_CLIENT_ID}/subscriptions`, subscriptionParams);
       console.log('Підписка успішна:', response.data);
       // res.json(response.data); // Відправте дані підписки у відповідь
 

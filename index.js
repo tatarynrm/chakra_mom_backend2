@@ -166,14 +166,11 @@ app.get("/auth/instagram/callback", async (req, res) => {
       access_token: accessToken.trim()
   };
 
-  try {
+
       const response = await axios.post(`https://graph.facebook.com/v21.0/${user_id}/subscriptions`, subscriptionParams);
       console.log('Підписка успішна:', response.data);
-      res.json(response.data); // Відправте дані підписки у відповідь
-  } catch (error) {
-      console.error('Помилка під час підписки:', error.response?.data || error.message);
-      res.status(500).send('Error subscribing to webhook');
-  }
+      // res.json(response.data); // Відправте дані підписки у відповідь
+
     }
 
     res.json(tokenResponse.data); // Відправте дані токена у відповідь

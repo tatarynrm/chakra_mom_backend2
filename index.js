@@ -230,7 +230,7 @@ app.get("/instagram/webhook", async (req, res) => {
   }
 });
 // Обробка подій
-app.post("/instagram/webhook", (req, res) => {
+app.post("/instagram/webhooks", (req, res) => {
   const body = req.body;
 
   if (body.object === "instagram") {

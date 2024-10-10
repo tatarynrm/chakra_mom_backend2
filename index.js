@@ -143,6 +143,19 @@ app.get("/auth/instagram/callback", async (req, res) => {
 
     console.log("TOKEN RESPONSE INSTAGRAM", tokenResponse.data);
     // Обробіть відповідь токена...
+    const accessToken = tokenResponse.data.access_token;
+
+      // Отримання повної інформації про користувача
+      const userInfoResponse = await axios.get(`https://graph.instagram.com/me`, {
+          params: {
+              fields: 'id,username,account_type,media_count',
+              access_token: accessToken,
+          },
+      });
+
+      console.log('USER INFO:', userInfoResponse.data);
+
+
     // Наприклад, зберігайте access_token в базі даних
     res.json(tokenResponse.data); // Відправте дані токена у відповідь
   } catch (error) {

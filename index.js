@@ -221,6 +221,7 @@ app.get("/instagram/webhook", async (req, res) => {
   const token = req.query["hub.verify_token"];
   const challenge = req.query["hub.challenge"];
   console.log("FORBIDEN");
+ console.log('Запит підтвердження:', req.query);
 
   if (mode && token === VERIFY_TOKEN) {
     res.status(200).send(challenge);

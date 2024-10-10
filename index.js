@@ -153,29 +153,27 @@ app.get("/auth/instagram/callback", async (req, res) => {
       },
     });
 
-    console.log("ACCESTOKENFORINSTAGRAM", accessToken);
+
 
     if (accessToken) {
-      await axios
-        .post(`https://graph.facebook.com/v20.0/${clientId}/subscriptions`, {
-          object: "instagram",
-          fields: "comments,messages",
-          callback_url: "https://api.logistic-mira.space/instagram/webhook",
-          verify_token: process.env.INSTAGRAM_VERIFY_TOKEN,
-          access_token: accessToken.trim(),
-        })
-        .then((response) => {
-          console.log("Підписка успішна:", response.data);
-        })
-        .catch((error) => {
-          console.error(
-            "Помилка під час підписки:",
-            error.response?.data || error.message
-          );
-          if (error.response) {
-            console.error("Деталі відповіді:", error.response.data);
-          }
-        });
+      console.log("ACCESTOKENFORINSTAGRAM", accessToken);
+    // Параметри для підписки
+    const subscriptionParams = {
+      object: 'instagram',
+      fields: 'comments,messages',
+      callback_url: 'https://your-domain.com/instagram/webhook', // Замість your-domain.com використовуйте ваш домен
+      verify_token: process.env.INSTAGRAM_VERIFY_TOKEN,
+      access_token: accessToken.trim()
+  };
+
+  try {
+      const response = await axios.post(`https://graph.facebook.com/v21.0/${user_id}/subscriptions`, subscriptionParams);
+      console.log('Підписка успішна:', response.data);
+      res.json(response.data); // Відправте дані підписки у відповідь
+  } catch (error) {
+      console.error('Помилка під час підписки:', error.response?.data || error.message);
+      res.status(500).send('Error subscribing to webhook');
+  }
     }
 
     res.json(tokenResponse.data); // Відправте дані токена у відповідь
@@ -215,47 +213,30 @@ app.get("/manage", async (req, res) => {
   }
 });
 
-app.get("/instagram/webhook", async (req, res) => {
-  const VERIFY_TOKEN = process.env.INSTAGRAM_VERIFY_TOKEN;
-  const mode = req.query["hub.mode"];
-  const token = req.query["hub.verify_token"];
-  const challenge = req.query["hub.challenge"];
-  console.log("FORBIDEN");
- console.log('Запит підтвердження:', req.query);
+// Endpoint для обробки вебхука
+app.get('/instagram/webhook', (req, res) => {
+  const mode = req.query['hub.mode'];
+  const token = req.query['hub.verify_token'];
+  const challenge = req.query['hub.challenge'];
 
-  if (mode && token === VERIFY_TOKEN) {
-    console.log('MODE',mode);
-    console.log('VERIFY_TOKEN',VERIFY_TOKEN);
-    console.log('token',token);
-    
-    res.status(200).send(challenge);
+  // Перевірка верифікаційного токена
+  if (mode && token) {
+      if (mode === 'subscribe' && token === process.env.INSTAGRAM_VERIFY_TOKEN) {
+          console.log('Верифікація пройшла успішно!');
+          res.status(200).send(challenge); // Повертаємо значення challenge
+      } else {
+          res.sendStatus(403); // Повертаємо 403, якщо токен неправильний
+      }
   } else {
-    res.sendStatus(403);
-  }
-});
-// Обробка подій
-app.post("/instagram/webhooks", (req, res) => {
-  const body = req.body;
-
-  if (body.object === "instagram") {
-    body.entry.forEach((entry) => {
-      const changes = entry.changes;
-      changes.forEach((change) => {
-        if (change.field === "comments") {
-          console.log("Новий коментар:", change.value);
-        }
-        if (change.field === "messages") {
-          console.log("Нове повідомлення:", change.value);
-        }
-      });
-    });
-
-    res.status(200).send("EVENT_RECEIVED");
-  } else {
-    res.sendStatus(404);
+      res.sendStatus(400); // Повертаємо 400, якщо не передані параметри
   }
 });
 
+// Endpoint для обробки подій
+app.post('/instagram/webhook', (req, res) => {
+  console.log('Отримано подію:', req.body);
+  res.sendStatus(200); // Відповідаємо 200, щоб підтвердити отримання події
+});
 // Запускаємо сервер на зазначеному порту
 app.listen(PORT, () => {
   console.log(`Сервер працює на порту ${PORT}`);

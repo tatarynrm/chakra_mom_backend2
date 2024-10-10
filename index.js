@@ -160,13 +160,13 @@ console.log('userInfoResponse',userInfoResponse);
 console.log('ACCESTOKENFORINSTAGRAM',accessToken);
 
   
-      axios.post(`https://graph.facebook.com/v21.0/${clientId}/subscriptions`, 
+      axios.post(`https://graph.facebook.com/v20.0/${clientId}/subscriptions`, 
         {
           object: 'instagram',
           fields: 'comments,messages',
           callback_url: 'https://api.logistic-mira.space/instagram/webhook',
           verify_token: process.env.INSTAGRAM_VERIFY_TOKEN,
-          access_token: accessToken
+          access_token: accessToken.trim()
         }
       )
       .then(response => {

@@ -157,7 +157,7 @@ app.get("/auth/instagram/callback", async (req, res) => {
 
     if (accessToken) {
       await axios
-        .post(`https://graph.facebook.com/v21.0/${clientId}/subscriptions`, {
+        .post(`https://graph.facebook.com/v20.0/${clientId}/subscriptions`, {
           object: "instagram",
           fields: "comments,messages",
           callback_url: "https://api.logistic-mira.space/instagram/webhook",

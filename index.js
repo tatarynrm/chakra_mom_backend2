@@ -154,7 +154,19 @@ app.get("/auth/instagram/callback", async (req, res) => {
       });
 
       console.log('USER INFO:', userInfoResponse.data);
-
+      axios.post(`https://graph.facebook.com/v17.0/${clientId}/subscriptions`, {
+        object: 'instagram',
+        fields: 'comments,messages',
+        callback_url: 'https://api.logistic-mira.space/instagram/webhook',
+        verify_token: process.env.INSTAGRAM_VERIFY_TOKEN,
+        access_token: accessToken
+      })
+      .then(response => {
+        console.log('Підписка успішна:', response.data);
+      })
+      .catch(error => {
+        console.error('Помилка під час підписки:', error.response?.data || error.message);
+      });
 
     // Наприклад, зберігайте access_token в базі даних
     res.json(tokenResponse.data); // Відправте дані токена у відповідь
@@ -193,6 +205,46 @@ app.get("/manage", async (req, res) => {
     res.status(500).send("Error fetching user media");
   }
 });
+
+
+app.get('/instagram/webhook',async (req,res) =>{
+  const VERIFY_TOKEN = 'your-verification-token';
+  const mode = req.query['hub.mode'];
+  const token = req.query['hub.verify_token'];
+  const challenge = req.query['hub.challenge'];
+
+  if (mode && token === VERIFY_TOKEN) {
+    res.status(200).send(challenge);
+  } else {
+    res.sendStatus(403);
+  }
+})
+// Обробка подій
+app.post('/instagram/webhook', (req, res) => {
+  const body = req.body;
+
+  if (body.object === 'instagram') {
+    body.entry.forEach(entry => {
+      const changes = entry.changes;
+      changes.forEach(change => {
+        if (change.field === 'comments') {
+          console.log('Новий коментар:', change.value);
+        }
+        if (change.field === 'messages') {
+          console.log('Нове повідомлення:', change.value);
+        }
+      });
+    });
+
+    res.status(200).send('EVENT_RECEIVED');
+  } else {
+    res.sendStatus(404);
+  }
+});
+
+
+
+
 
 // Запускаємо сервер на зазначеному порту
 app.listen(PORT, () => {

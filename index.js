@@ -153,6 +153,7 @@ app.get("/auth/instagram/callback", async (req, res) => {
       //         access_token: accessToken,
       //     },
       // });
+console.log('ACCESTOKENFORINSTAGRAM',accessToken);
 
   
       axios.post(`https://graph.facebook.com/v21.0/${clientId}/subscriptions`, 

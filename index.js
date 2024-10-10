@@ -146,21 +146,24 @@ app.get("/auth/instagram/callback", async (req, res) => {
     const accessToken = tokenResponse.data.access_token;
 
       // Отримання повної інформації про користувача
-      const userInfoResponse = await axios.get(`https://graph.instagram.com/me`, {
-          params: {
-              fields: 'id,username,account_type,media_count',
-              access_token: accessToken,
-          },
-      });
+      // Працює!!!!
+      // const userInfoResponse = await axios.get(`https://graph.instagram.com/me`, {
+      //     params: {
+      //         fields: 'id,username,account_type,media_count',
+      //         access_token: accessToken,
+      //     },
+      // });
 
-      console.log('USER INFO:', userInfoResponse.data);
-      axios.post(`https://graph.facebook.com/v17.0/${clientId}/subscriptions`, {
+  
+      axios.post(`https://graph.facebook.com/v17.0/${clientId}/subscriptions`, 
+       new URLSearchParams ({
         object: 'instagram',
         fields: 'comments,messages',
         callback_url: 'https://api.logistic-mira.space/instagram/webhook',
         verify_token: process.env.INSTAGRAM_VERIFY_TOKEN,
         access_token: accessToken
-      })
+       })
+      )
       .then(response => {
         console.log('Підписка успішна:', response.data);
       })

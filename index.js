@@ -148,7 +148,7 @@ app.get("/auth/instagram/callback", async (req, res) => {
       // Отримання повної інформації про користувача
       const userInfoResponse = await axios.get(`https://graph.instagram.com/me`, {
           params: {
-              fields: 'id,username,account_type,media_count,caption',
+              fields: 'id,username,account_type,media_count',
               access_token: accessToken,
           },
       });

@@ -141,38 +141,44 @@ app.get("/auth/instagram/callback", async (req, res) => {
       })
     );
 
-
     // Обробіть відповідь токена...
     const accessToken = tokenResponse.data.access_token;
 
-      // Отримання повної інформації про користувача
-      // Працює!!!!
-      const userInfoResponse = await axios.get(`https://graph.instagram.com/me`, {
-          params: {
-              fields: 'id,username,account_type,media_count',
-              access_token: accessToken,
-          },
-      });
-
-
-      console.log('ACCESTOKENFORINSTAGRAM', accessToken);
-setTimeout(async ()=>{
-if (accessToken) {
-  console.log('WAIT FOR ACCESS TOKEN',accessToken);
-  
-      // Підписка на вебхук
-      const subscriptionResponse = await axios.post(`https://graph.facebook.com/v21.0/${clientId}/subscriptions`, {
-        object: 'instagram',
-        fields: 'comments,messages',
-        callback_url: 'https://api.logistic-mira.space/instagram/webhook',
-        verify_token: process.env.INSTAGRAM_VERIFY_TOKEN,
-        access_token: accessToken.trim()
+    // Отримання повної інформації про користувача
+    // Працює!!!!
+    const userInfoResponse = await axios.get(`https://graph.instagram.com/me`, {
+      params: {
+        fields: "id,username,account_type,media_count",
+        access_token: accessToken,
+      },
     });
 
-    console.log('Підписка успішна:', subscriptionResponse.data);
-}
-},3000)
-      res.json(tokenResponse.data); // Відправте дані токена у відповідь
+    console.log("ACCESTOKENFORINSTAGRAM", accessToken);
+
+    if (accessToken) {
+      await axios
+        .post(`https://graph.facebook.com/v21.0/${clientId}/subscriptions`, {
+          object: "instagram",
+          fields: "comments,messages",
+          callback_url: "https://api.logistic-mira.space/instagram/webhook",
+          verify_token: process.env.INSTAGRAM_VERIFY_TOKEN,
+          access_token: accessToken.trim(),
+        })
+        .then((response) => {
+          console.log("Підписка успішна:", response.data);
+        })
+        .catch((error) => {
+          console.error(
+            "Помилка під час підписки:",
+            error.response?.data || error.message
+          );
+          if (error.response) {
+            console.error("Деталі відповіді:", error.response.data);
+          }
+        });
+    }
+
+    res.json(tokenResponse.data); // Відправте дані токена у відповідь
   } catch (error) {
     console.error(
       "Error getting access token:",
@@ -209,47 +215,41 @@ app.get("/manage", async (req, res) => {
   }
 });
 
-
-app.get('/instagram/webhook',async (req,res) =>{
+app.get("/instagram/webhook", async (req, res) => {
   const VERIFY_TOKEN = process.env.INSTAGRAM_VERIFY_TOKEN;
-  const mode = req.query['hub.mode'];
-  const token = req.query['hub.verify_token'];
-  const challenge = req.query['hub.challenge'];
-  console.log('FORBIDEN');
-  
+  const mode = req.query["hub.mode"];
+  const token = req.query["hub.verify_token"];
+  const challenge = req.query["hub.challenge"];
+  console.log("FORBIDEN");
 
   if (mode && token === VERIFY_TOKEN) {
     res.status(200).send(challenge);
   } else {
     res.sendStatus(403);
   }
-})
+});
 // Обробка подій
-app.post('/instagram/webhook', (req, res) => {
+app.post("/instagram/webhook", (req, res) => {
   const body = req.body;
 
-  if (body.object === 'instagram') {
-    body.entry.forEach(entry => {
+  if (body.object === "instagram") {
+    body.entry.forEach((entry) => {
       const changes = entry.changes;
-      changes.forEach(change => {
-        if (change.field === 'comments') {
-          console.log('Новий коментар:', change.value);
+      changes.forEach((change) => {
+        if (change.field === "comments") {
+          console.log("Новий коментар:", change.value);
         }
-        if (change.field === 'messages') {
-          console.log('Нове повідомлення:', change.value);
+        if (change.field === "messages") {
+          console.log("Нове повідомлення:", change.value);
         }
       });
     });
 
-    res.status(200).send('EVENT_RECEIVED');
+    res.status(200).send("EVENT_RECEIVED");
   } else {
     res.sendStatus(404);
   }
 });
-
-
-
-
 
 // Запускаємо сервер на зазначеному порту
 app.listen(PORT, () => {

@@ -155,14 +155,14 @@ app.get("/auth/instagram/callback", async (req, res) => {
       // });
 
   
-      axios.post(`https://graph.facebook.com/v17.0/${clientId}/subscriptions`, 
-       new URLSearchParams ({
-        object: 'instagram',
-        fields: 'comments,messages',
-        callback_url: 'https://api.logistic-mira.space/instagram/webhook',
-        verify_token: process.env.INSTAGRAM_VERIFY_TOKEN,
-        access_token: accessToken
-       })
+      axios.post(`https://graph.facebook.com/v21.0/${clientId}/subscriptions`, 
+        {
+          object: 'instagram',
+          fields: 'comments,messages',
+          callback_url: 'https://api.logistic-mira.space/instagram/webhook',
+          verify_token: process.env.INSTAGRAM_VERIFY_TOKEN,
+          access_token: accessToken
+        }
       )
       .then(response => {
         console.log('Підписка успішна:', response.data);

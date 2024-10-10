@@ -141,18 +141,22 @@ app.get("/auth/instagram/callback", async (req, res) => {
       })
     );
 
-    console.log("TOKEN RESPONSE INSTAGRAM", tokenResponse.data);
+
     // Обробіть відповідь токена...
     const accessToken = tokenResponse.data.access_token;
 
       // Отримання повної інформації про користувача
       // Працює!!!!
-      // const userInfoResponse = await axios.get(`https://graph.instagram.com/me`, {
-      //     params: {
-      //         fields: 'id,username,account_type,media_count',
-      //         access_token: accessToken,
-      //     },
-      // });
+      const userInfoResponse = await axios.get(`https://graph.instagram.com/me`, {
+          params: {
+              fields: 'id,username,account_type,media_count',
+              access_token: accessToken,
+          },
+      });
+console.log('userInfoResponse',userInfoResponse);
+
+
+
 console.log('ACCESTOKENFORINSTAGRAM',accessToken);
 
   

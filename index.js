@@ -156,7 +156,7 @@ app.get("/auth/instagram/callback", async (req, res) => {
 
 
       console.log('ACCESTOKENFORINSTAGRAM', accessToken);
-setTimeout(()=>{
+setTimeout(async ()=>{
 if (accessToken) {
   console.log('WAIT FOR ACCESS TOKEN',accessToken);
   

@@ -168,7 +168,7 @@ console.log('userInfoResponse--------------',userInfoResponse);
   };
 
 
-      const response = await axios.post(`https://graph.facebook.com/v21.0/7889452554498054/subscriptions`, subscriptionParams);
+      const response = await axios.post(`https://graph.facebook.com/v21.0/${process.env.INSTAGRAM_CLIENT_ID}/subscriptions`, subscriptionParams);
       console.log('Підписка успішна:', response.data);
       // res.json(response.data); // Відправте дані підписки у відповідь
 

@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('../db/db');
 
-const { createTransportation, getTransportationsList, createTransportationСomment, searchTransportations, getDayAndMonthSum, updateTransportation, getTransportationStatus } = require('../controllers/transportation');
+const { createTransportation, getTransportationsList, createTransportationСomment, searchTransportations, getDayAndMonthSum, updateTransportation, getTransportationStatus, getEarningsForPeriod } = require('../controllers/transportation');
 
 const router = express.Router();
 
@@ -23,6 +23,7 @@ router.get('/search',searchTransportations);
 router.post('/update/:id',updateTransportation);
 
 router.get('/costs/today-and-month',getDayAndMonthSum);
+router.get('/costs/period',getEarningsForPeriod);
 
 
 

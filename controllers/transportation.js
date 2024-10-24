@@ -239,15 +239,42 @@ const getDayAndMonthSum = async (req,res)=>{
               SUM(CASE WHEN created_at::date >= DATE_TRUNC('month', CURRENT_DATE) THEN cost ELSE 0 END) AS total_cost_this_month
           FROM transportation
         `);
-    
-        res.json(result.rows[0]);
+    console.log(result.rows);
+    const result1 = await pool.query(`
+        SELECT 
+          SUM(CASE WHEN created_at::date = CURRENT_DATE THEN cost ELSE 0 END) AS total_cost_today,
+          SUM(CASE WHEN created_at::date >= DATE_TRUNC('month', CURRENT_DATE) THEN cost ELSE 0 END) AS total_cost_this_month,
+          SUM(CASE WHEN created_at::date >= DATE_TRUNC('year', CURRENT_DATE) THEN cost ELSE 0 END) AS total_cost_this_year,
+          SUM(cost) AS total_cost_all_time
+        FROM transportation
+      `);
+      console.log(result1.rows);
+        res.json(result1.rows[0]);
       } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message });
       }
 }
 
-
+const getEarningsForPeriod = async (req, res) => {
+    try {
+      const { startDate, endDate } = req.query; // Отримуємо дати з запиту
+  
+      const result = await pool.query(`
+        SELECT 
+          SUM(cost) AS total_cost_for_period
+        FROM transportation
+        WHERE created_at::date BETWEEN $1 AND $2
+      `, [startDate, endDate]); // Використовуємо параметри для безпеки SQL-запиту
+  
+      console.log(result.rows);
+  
+      res.json(result.rows[0]);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: err.message });
+    }
+  }
 
 
 const getTransportationStatus = async (req,res) =>{
@@ -273,9 +300,11 @@ module.exports = {
 
 
     getDayAndMonthSum,
+    getEarningsForPeriod,
 
 
 
-    getTransportationStatus
+    getTransportationStatus,
+    
 
 };

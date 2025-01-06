@@ -235,6 +235,168 @@ app.post('/instagram/webhook', (req, res) => {
   console.log('Отримано подію:', req.body);
   res.sendStatus(200); // Відповідаємо 200, щоб підтвердити отримання події
 });
+
+
+
+
+
+
+
+
+
+
+require('dotenv').config();
+const WayForPay = require('./adapters/WayForPay.js')
+
+
+
+
+
+function generateHMAC_MD5(merchantAccount, merchantDomainName, orderReference, orderDate, amount, currency, productNames, productCounts, productPrices, secretKey) {
+    // Конкатенація параметрів
+    const concatenatedString = [
+        merchantAccount,
+        merchantDomainName,
+        orderReference,
+        orderDate,
+        amount,
+        currency,
+        ...productNames,
+        ...productCounts,
+        ...productPrices
+    ].join(';');
+
+    // Генерація HMAC MD5
+    const hmac = crypto.createHmac('md5', secretKey);
+    hmac.update(concatenatedString, 'utf8');
+    
+    // Повернення HMAC у шістнадцятковому вигляді
+    return hmac.digest('hex');
+}
+
+
+// Функція для генерації HMAC MD5
+function generateHMAC_MD5(merchantAccount, merchantDomainName, orderReference, orderDate, amount, currency, productNames, productCounts, productPrices, secretKey) {
+  // Конкатенація параметрів
+  const concatenatedString = [
+      merchantAccount,
+      merchantDomainName,
+      orderReference,
+      orderDate,
+      amount,
+      currency,
+      ...productNames,
+      ...productCounts,
+      ...productPrices
+  ].join(';');
+
+  // Генерація HMAC MD5
+  const hmac = crypto.createHmac('md5', secretKey);
+  hmac.update(concatenatedString, 'utf8');
+
+  // Повернення HMAC у шістнадцятковому вигляді
+  return hmac.digest('hex');
+}
+
+// Приклад використання
+const merchantAccount = process.env.WAYFORPAY_DOMAIN; // Змінна середовища
+const merchantDomainName = 'www.super.org';
+const orderReference = '323132121';
+const orderDate = 1421412898; // Значення з вашого запиту
+const amount = 0.13; // Значення з вашого запиту
+const currency = 'UAH'; // Значення з вашого запиту
+const productNames = ['Samsung WB1100F', 'Samsung Galaxy Tab 4 7.0 8GB 3G Black'];
+const productCounts = [1, 2];
+const productPrices = [21.1, 30.99];
+const secretKey = process.env.WAYFORPAY_SECRET; // Змінна середовища
+
+const hmacSignature = generateHMAC_MD5(
+  merchantAccount,
+  merchantDomainName,
+  orderReference,
+  orderDate,
+  amount,
+  currency,
+  productNames,
+  productCounts,
+  productPrices,
+  secretKey
+);
+
+console.log('HMAC MD5 Signature:', hmacSignature);
+
+const getPayMent = async () => {
+  const Signature = hmacSignature;
+  try {
+      const data = await axios.post(process.env.WAYFORPAY_URL, {
+          "transactionType": "CHARGE",
+          "merchantAccount": merchantAccount, // Взято з параметрів
+          "merchantAuthType": "SimpleSignature",
+          "merchantDomainName": merchantDomainName, // Взято з параметрів
+          "merchantTransactionType": "AUTH",
+          "merchantTransactionSecureType": "NON3DS",
+          "merchantSignature": Signature,
+          "apiVersion": 1,
+          "serviceUrl":"http://localhost:8800/wayforpay/callback",
+          "orderReference": orderReference, // Взято з параметрів
+          "orderDate": orderDate, // Взято з параметрів
+          "amount": amount, // Взято з параметрів
+          "currency": currency, // Взято з параметрів
+          "card": "4111111111111111", // Збережіть безпеку даних картки
+          "expMonth": "11",
+          "expYear": "2020",
+          "cardCvv": "111",
+          "cardHolder": "TARAS BULBA",
+          "productName": productNames, // Взято з параметрів
+          "productPrice": productPrices, // Взято з параметрів
+          "productCount": productCounts, // Взято з параметрів
+          "clientFirstName": "Bulba",
+          "clientLastName": "Taras",
+          "clientCountry": "UKR",
+          "clientEmail": "rob@mail.com",
+          "clientPhone": "380556667788",
+          "clientIpAdress": " "
+      });
+
+      console.log('ВІДПОВІДЬ ВІД ВЕЙПОРЕ', data);
+  } catch (error) {
+      console.log(error);
+  }
+};
+
+// getPayMent();
+
+
+app.get('/wayforpay/callback',async (req,res) =>{
+  try {
+    const data = req.body;
+    console.log(data);
+    
+  } catch (error) {
+    console.log(error);
+    
+  }
+})
+
+
+
+
+
+
+
+
+
+
+
+app.post('/shopify/cart-create',async (req,res) =>{
+  console.log('dsadsasddsa',req.body);
+
+  
+})
+
+
+
+
 // Запускаємо сервер на зазначеному порту
 app.listen(PORT, () => {
   console.log(`Сервер працює на порту ${PORT}`);

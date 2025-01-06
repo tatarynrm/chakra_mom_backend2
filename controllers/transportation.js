@@ -248,7 +248,7 @@ const getDayAndMonthSum = async (req,res)=>{
           SUM(cost) AS total_cost_all_time
         FROM transportation
       `);
-      console.log(result1.rows);
+
         res.json(result1.rows[0]);
       } catch (err) {
         console.error(err);
